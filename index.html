@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,11 +14,13 @@
             text-align: center;
         }
 
-        h1, h2 {
+        h1,
+        h2 {
             color: #333;
         }
 
-        #fields-container, #rewards-container {
+        #fields-container,
+        #rewards-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
@@ -25,7 +28,8 @@
             margin-bottom: 30px;
         }
 
-        .field, .reward {
+        .field,
+        .reward {
             width: 120px;
             height: 150px;
             background-color: #fff;
@@ -40,14 +44,16 @@
             padding: 10px;
         }
 
-        .field img, .reward img {
+        .field img,
+        .reward img {
             max-width: 80px;
             max-height: 80px;
             object-fit: contain;
             margin-bottom: 10px;
         }
 
-        .field input, .reward input {
+        .field input,
+        .reward input {
             width: 80px;
             border: none;
             border-top: 1px solid #ddd;
@@ -86,6 +92,15 @@
             padding: 20px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
             z-index: 1000;
+            max-height: 80vh;
+            /* Limit the popup height to 80% of the viewport height */
+            overflow-y: auto;
+            /* Enable scrolling if the content exceeds the popup's height */
+            max-width: 90vw;
+            /* Ensure the popup does not exceed the screen width */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .popup img {
@@ -141,6 +156,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Select Order Materials</h1>
 
@@ -198,7 +214,7 @@
             const container = isReward ? rewardsContainer : fieldsContainer;
             const field = document.createElement('div');
             field.className = isReward ? 'reward' : 'field';
-            field.onclick = function(event) {
+            field.onclick = function (event) {
                 if (event.target.tagName !== 'INPUT') {
                     openPopup(field, isReward);
                 }
@@ -207,7 +223,7 @@
             const removeBtn = document.createElement('button');
             removeBtn.className = 'remove-btn';
             removeBtn.innerHTML = '&times;';
-            removeBtn.onclick = function(event) {
+            removeBtn.onclick = function (event) {
                 event.stopPropagation();
                 if (container.children.length > 1) {
                     field.remove();
@@ -221,13 +237,19 @@
             input.min = '1';
             input.placeholder = 'Quantity';
             input.oninput = calculateTotal;
-            input.onclick = function(event) {
+            input.onclick = function (event) {
                 event.stopPropagation();
             };
             field.appendChild(input);
 
             container.appendChild(field);
+
+            // Automatically select token.png for the first reward
+            if (isReward && container.children.length === 1) {
+                selectMaterial('materials/token.png');
+            }
         }
+
 
         function openPopup(field, reward) {
             selectedField = field;
@@ -262,7 +284,7 @@
                 input.min = '1';
                 input.placeholder = 'Quantity';
                 input.oninput = calculateTotal;
-                input.onclick = function(event) {
+                input.onclick = function (event) {
                     event.stopPropagation();
                 };
                 selectedField.appendChild(input);
@@ -270,7 +292,7 @@
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-btn';
                 removeBtn.innerHTML = '&times;';
-                removeBtn.onclick = function(event) {
+                removeBtn.onclick = function (event) {
                     event.stopPropagation();
                     if (isReward || fieldsContainer.children.length > 1) {
                         selectedField.remove();
@@ -302,7 +324,7 @@
             Array.from(fieldsContainer.children).forEach(field => {
                 const material = field.dataset.material;
                 const quantity = parseInt(field.querySelector('input').value) || 0;
-                const cost = materialCosts[material.split('/').pop().replace('.png', '')] || 0;
+                const cost = materialCosts[material] || 0;
                 totalTickets += cost * quantity;
                 totalGems += (cost * quantity) / 2;
             });
@@ -332,10 +354,11 @@
         }
 
         // Initial setup
-        window.onload = function() {
+        window.onload = function () {
             addField(false);
             addField(true);
         };
     </script>
 </body>
+
 </html>
