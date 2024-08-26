@@ -13,7 +13,7 @@
             text-align: center;
         }
 
-        h1 {
+        h1, h2 {
             color: #333;
         }
 
@@ -32,10 +32,7 @@
             border: 2px solid #ddd;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
             position: relative;
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -58,18 +55,23 @@
             text-align: center;
             outline: none;
             font-size: 14px;
-            cursor: auto;
             border-radius: 5px;
         }
 
         .remove-btn {
-            background-color: #ff6666;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff4d4d;
             border: none;
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
+            color: #fff;
+            border-radius: 50%;
             cursor: pointer;
-            margin-top: 5px;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            line-height: 20px;
+            text-align: center;
         }
 
         .popup {
@@ -93,12 +95,6 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .popup img:hover {
-            transform: scale(1.1);
-            border-color: #888;
         }
 
         #overlay {
@@ -119,8 +115,8 @@
             border: 2px solid #ddd;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: inline-block;
             text-align: left;
+            display: inline-block;
         }
 
         #summary img {
@@ -133,49 +129,31 @@
             margin-top: 10px;
         }
 
-        .clear-btn {
-            background-color: #ff6666;
-            border: none;
+        #clear-all {
+            margin-top: 20px;
+            background-color: #007bff;
             color: white;
             padding: 10px 20px;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 20px;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
     <h1>Select Order Materials</h1>
 
-    <div id="fields-container">
-        <!-- Fields will be generated here -->
-    </div>
+    <div id="fields-container"></div>
 
     <h2>Select Order Rewards</h2>
-    <div id="rewards-container">
-        <!-- Rewards will be generated here -->
-    </div>
-
-    <button class="clear-btn" onclick="clearAll()">Clear All</button>
+    <div id="rewards-container"></div>
 
     <div id="overlay" onclick="closePopup()"></div>
 
     <div id="popup" class="popup">
         <!-- Material selection images -->
-        <div id="material-options">
-            <!-- Materials -->
-            <img src="materials/material_1.png" onclick="selectMaterial('material_1', 'materials/material_1.png')">
-            <img src="materials/material_2.png" onclick="selectMaterial('material_2', 'materials/material_2.png')">
-            <img src="materials/material_3.png" onclick="selectMaterial('material_3', 'materials/material_3.png')">
-            <img src="materials/material_4.png" onclick="selectMaterial('material_4', 'materials/material_4.png')">
-            <img src="materials/material_5.png" onclick="selectMaterial('material_5', 'materials/material_5.png')">
-            <img src="materials/material_6.png" onclick="selectMaterial('material_6', 'materials/material_6.png')">
-            <img src="materials/material_7.png" onclick="selectMaterial('material_7', 'materials/material_7.png')">
-            <img src="materials/material_8.png" onclick="selectMaterial('material_8', 'materials/material_8.png')">
-            <img src="materials/material_9.png" onclick="selectMaterial('material_9', 'materials/material_9.png')">
-            <img src="materials/material_10.png" onclick="selectMaterial('material_10', 'materials/material_10.png')">
-            <img src="materials/material_11.png" onclick="selectMaterial('material_11', 'materials/material_11.png')">
-        </div>
+        <div id="material-options"></div>
     </div>
 
     <div id="summary">
@@ -184,6 +162,8 @@
         <div>Reward Value: <span id="total-rewards">0</span></div>
         <div>Profit: <span id="profit">0</span></div>
     </div>
+
+    <button id="clear-all" onclick="clearAllFields()">Clear All</button>
 
     <script>
         const fieldsContainer = document.getElementById('fields-container');
@@ -202,26 +182,40 @@
             material_11: 0.5
         };
         const rewardValues = {
-            token: 2.5,
-            WakeCore: 6000,
-            accessory_choose_def_11: 15000,
-            Currency_Diamond: 1,
-            equip_choose_S_4: 6000,
-            Frag_12: 500,
-            RelicCore: 15000
+            "materials/token.png": 2.5,
+            "materials/WakeCore.png": 6000,
+            "materials/accessory_choose_def_11.png": 15000,
+            "materials/Currency_Diamond.png": 1,
+            "materials/equip_choose_S_4.png": 6000,
+            "materials/Frag_12.png": 500,
+            "materials/RelicCore.png": 15000
         };
 
         let selectedField = null;
         let isReward = false;
 
-        function addField(container, isRewardField = false) {
+        function addField(isReward) {
+            const container = isReward ? rewardsContainer : fieldsContainer;
             const field = document.createElement('div');
-            field.className = isRewardField ? 'reward' : 'field';
+            field.className = isReward ? 'reward' : 'field';
             field.onclick = function(event) {
                 if (event.target.tagName !== 'INPUT') {
-                    openPopup(field, isRewardField);
+                    openPopup(field, isReward);
                 }
             };
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.onclick = function(event) {
+                event.stopPropagation();
+                if (container.children.length > 1) {
+                    field.remove();
+                    calculateTotal();
+                }
+            };
+            field.appendChild(removeBtn);
+
             const input = document.createElement('input');
             input.type = 'number';
             input.min = '1';
@@ -230,34 +224,39 @@
             input.onclick = function(event) {
                 event.stopPropagation();
             };
-            const removeBtn = document.createElement('button');
-            removeBtn.className = 'remove-btn';
-            removeBtn.innerText = 'Remove';
-            removeBtn.onclick = function(event) {
-                container.removeChild(field);
-                calculateTotal();
-                event.stopPropagation();
-            };
-
             field.appendChild(input);
-            field.appendChild(removeBtn);
+
             container.appendChild(field);
         }
 
         function openPopup(field, reward) {
             selectedField = field;
             isReward = reward;
+            const optionsContainer = document.getElementById('material-options');
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            const options = isReward ? Object.keys(rewardValues) : Object.keys(materialCosts);
+
+            options.forEach((material) => {
+                const img = document.createElement('img');
+                img.src = material;
+                img.onclick = () => selectMaterial(material);
+                optionsContainer.appendChild(img);
+            });
+
             document.getElementById('popup').style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         }
 
-        function selectMaterial(material, imageSrc) {
+        function selectMaterial(imageSrc) {
             if (selectedField) {
-                selectedField.dataset.material = material;
+                selectedField.dataset.material = imageSrc;
                 selectedField.innerHTML = '';  // Clear the field
+
                 const img = document.createElement('img');
                 img.src = imageSrc;
                 selectedField.appendChild(img);
+
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.min = '1';
@@ -267,23 +266,25 @@
                     event.stopPropagation();
                 };
                 selectedField.appendChild(input);
+
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-btn';
-                removeBtn.innerText = 'Remove';
+                removeBtn.innerHTML = '&times;';
                 removeBtn.onclick = function(event) {
-                    selectedField.parentElement.removeChild(selectedField);
-                    calculateTotal();
                     event.stopPropagation();
+                    if (isReward || fieldsContainer.children.length > 1) {
+                        selectedField.remove();
+                        calculateTotal();
+                    }
                 };
                 selectedField.appendChild(removeBtn);
-                closePopup();
 
-                if (!isReward && selectedField === fieldsContainer.lastElementChild) {
-                    addField(fieldsContainer);
-                } else if (isReward && selectedField === rewardsContainer.lastElementChild) {
-                    addField(rewardsContainer, true);
+                if (!isReward) {
+                    addField(false); // Add another field for order materials
                 }
+
                 calculateTotal();
+                closePopup();
             }
         }
 
@@ -297,40 +298,44 @@
             let totalGems = 0;
             let totalRewards = 0;
 
-            fieldsContainer.querySelectorAll('.field').forEach(field => {
+            // Calculate order costs
+            Array.from(fieldsContainer.children).forEach(field => {
                 const material = field.dataset.material;
-                const quantity = field.querySelector('input').value;
-                if (material && quantity) {
-                    totalTickets += materialCosts[material] * quantity;
-                    totalGems += materialCosts[material] * quantity;  // Assuming the same cost in gems
-                }
+                const quantity = parseInt(field.querySelector('input').value) || 0;
+                const cost = materialCosts[material.split('/').pop().replace('.png', '')] || 0;
+                totalTickets += cost * quantity;
+                totalGems += (cost * quantity) / 2;
             });
 
-            rewardsContainer.querySelectorAll('.reward').forEach(reward => {
+            // Calculate rewards value
+            Array.from(rewardsContainer.children).forEach(reward => {
                 const material = reward.dataset.material;
-                const quantity = reward.querySelector('input').value;
-                if (material && quantity) {
-                    totalRewards += rewardValues[material] * quantity;
-                }
+                const quantity = parseInt(reward.querySelector('input').value) || 0;
+                const value = rewardValues[material] || 0;
+                totalRewards += value * quantity;
             });
 
-            document.getElementById('total-tickets').textContent = totalTickets;
-            document.getElementById('total-gems').textContent = totalGems;
-            document.getElementById('total-rewards').textContent = totalRewards;
-            document.getElementById('profit').textContent = totalRewards - totalGems;
+            const profit = totalRewards - totalGems;
+
+            document.getElementById('total-tickets').innerText = totalTickets;
+            document.getElementById('total-gems').innerText = totalGems;
+            document.getElementById('total-rewards').innerText = totalRewards;
+            document.getElementById('profit').innerText = profit;
         }
 
-        function clearAll() {
+        function clearAllFields() {
             fieldsContainer.innerHTML = '';
             rewardsContainer.innerHTML = '';
-            addField(fieldsContainer);
-            addField(rewardsContainer, true); // Start with token.png as the first reward
+            addField(false);
+            addField(true);
             calculateTotal();
         }
 
-        // Initialize with one field in both containers
-        addField(fieldsContainer);
-        addField(rewardsContainer, true); // Start with token.png as the first reward
+        // Initial setup
+        window.onload = function() {
+            addField(false);
+            addField(true);
+        };
     </script>
 </body>
 </html>
