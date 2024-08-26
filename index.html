@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,8 +17,7 @@
             color: #333;
         }
 
-        #fields-container,
-        #rewards-container {
+        #fields-container, #rewards-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
@@ -27,8 +25,7 @@
             margin-bottom: 30px;
         }
 
-        .field,
-        .reward {
+        .field, .reward {
             width: 120px;
             height: 150px;
             background-color: #fff;
@@ -46,16 +43,14 @@
             padding: 10px;
         }
 
-        .field img,
-        .reward img {
+        .field img, .reward img {
             max-width: 80px;
             max-height: 80px;
             object-fit: contain;
             margin-bottom: 10px;
         }
 
-        .field input,
-        .reward input {
+        .field input, .reward input {
             width: 80px;
             border: none;
             border-top: 1px solid #ddd;
@@ -65,6 +60,16 @@
             font-size: 14px;
             cursor: auto;
             border-radius: 5px;
+        }
+
+        .remove-btn {
+            background-color: #ff6666;
+            border: none;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
         }
 
         .popup {
@@ -127,9 +132,18 @@
             font-size: 18px;
             margin-top: 10px;
         }
+
+        .clear-btn {
+            background-color: #ff6666;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
     </style>
 </head>
-
 <body>
     <h1>Select Order Materials</h1>
 
@@ -142,12 +156,14 @@
         <!-- Rewards will be generated here -->
     </div>
 
+    <button class="clear-btn" onclick="clearAll()">Clear All</button>
+
     <div id="overlay" onclick="closePopup()"></div>
 
     <div id="popup" class="popup">
         <!-- Material selection images -->
         <div id="material-options">
-            <!-- 11 materials for fields -->
+            <!-- Materials -->
             <img src="materials/material_1.png" onclick="selectMaterial('material_1', 'materials/material_1.png')">
             <img src="materials/material_2.png" onclick="selectMaterial('material_2', 'materials/material_2.png')">
             <img src="materials/material_3.png" onclick="selectMaterial('material_3', 'materials/material_3.png')">
@@ -160,26 +176,13 @@
             <img src="materials/material_10.png" onclick="selectMaterial('material_10', 'materials/material_10.png')">
             <img src="materials/material_11.png" onclick="selectMaterial('material_11', 'materials/material_11.png')">
         </div>
-        <!-- Rewards selection images -->
-        <div id="reward-options">
-            <img src="materials/token.png" onclick="selectReward('token', 'materials/token.png', 2.5)">
-            <img src="materials/WakeCore.png" onclick="selectReward('WakeCore', 'materials/WakeCore.png', 6000)">
-            <img src="materials/accessory_choose_def_11.png"
-                onclick="selectReward('accessory_choose_def_11', 'materials/accessory_choose_def_11.png', 15000)">
-            <img src="materials/Currency_Diamond.png"
-                onclick="selectReward('Currency_Diamond', 'materials/Currency_Diamond.png', 1)">
-            <img src="materials/equip_choose_S_4.png"
-                onclick="selectReward('equip_choose_S_4', 'materials/equip_choose_S_4.png', 6000)">
-            <img src="materials/Frag_12.png" onclick="selectReward('Frag_12', 'materials/Frag_12.png', 500)">
-            <img src="materials/RelicCore.png" onclick="selectReward('RelicCore', 'materials/RelicCore.png', 15000)">
-        </div>
     </div>
 
     <div id="summary">
         <div><img src="materials/ticket.png"> Tickets: <span id="total-tickets">0</span></div>
         <div><img src="materials/Currency_Diamond.png"> Gems: <span id="total-gems">0</span></div>
-        <div>Reward Value: <span id="total-rewards">0</span> Gems</div>
-        <div>Profit: <span id="profit">0</span> Gems</div>
+        <div>Reward Value: <span id="total-rewards">0</span></div>
+        <div>Profit: <span id="profit">0</span></div>
     </div>
 
     <script>
@@ -198,17 +201,25 @@
             material_10: 1,
             material_11: 0.5
         };
+        const rewardValues = {
+            token: 2.5,
+            WakeCore: 6000,
+            accessory_choose_def_11: 15000,
+            Currency_Diamond: 1,
+            equip_choose_S_4: 6000,
+            Frag_12: 500,
+            RelicCore: 15000
+        };
+
         let selectedField = null;
         let isReward = false;
 
-        // Generate 10 fields for materials
-        for (let i = 0; i < 10; i++) {
+        function addField(container, isRewardField = false) {
             const field = document.createElement('div');
-            field.className = 'field';
-            field.id = `field_${i}`;
-            field.onclick = function (event) {
+            field.className = isRewardField ? 'reward' : 'field';
+            field.onclick = function(event) {
                 if (event.target.tagName !== 'INPUT') {
-                    openPopup(field, false);
+                    openPopup(field, isRewardField);
                 }
             };
             const input = document.createElement('input');
@@ -216,61 +227,69 @@
             input.min = '1';
             input.placeholder = 'Quantity';
             input.oninput = calculateTotal;
-            input.onclick = function (event) {
+            input.onclick = function(event) {
                 event.stopPropagation();
             };
-            field.appendChild(input);
-            fieldsContainer.appendChild(field);
-        }
-
-        // Generate 4 fields for rewards
-        for (let i = 0; i < 4; i++) {
-            const reward = document.createElement('div');
-            reward.className = 'reward';
-            reward.id = `reward_${i}`;
-            reward.onclick = function (event) {
-                if (event.target.tagName !== 'INPUT') {
-                    openPopup(reward, true);
-                }
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerText = 'Remove';
+            removeBtn.onclick = function(event) {
+                container.removeChild(field);
+                calculateTotal();
+                event.stopPropagation();
             };
-            const input = document.createElement('input');
-            input.type = 'number'; input.min = '1'; input.placeholder = 'Quantity'; input.oninput = calculateTotal; input.onclick = function (event) { event.stopPropagation(); }; reward.appendChild(input); rewardsContainer.appendChild(reward);
+
+            field.appendChild(input);
+            field.appendChild(removeBtn);
+            container.appendChild(field);
         }
 
         function openPopup(field, reward) {
             selectedField = field;
             isReward = reward;
-            const materialOptions = document.getElementById('material-options');
-            const rewardOptions = document.getElementById('reward-options');
-            if (reward) {
-                materialOptions.style.display = 'flex';
-                rewardOptions.style.display = 'flex';
-            } else {
-                materialOptions.style.display = 'flex';
-                rewardOptions.style.display = 'none';
-            }
-            document.getElementById('overlay').style.display = 'block';
             document.getElementById('popup').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function selectMaterial(material, imageSrc) {
+            if (selectedField) {
+                selectedField.dataset.material = material;
+                selectedField.innerHTML = '';  // Clear the field
+                const img = document.createElement('img');
+                img.src = imageSrc;
+                selectedField.appendChild(img);
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '1';
+                input.placeholder = 'Quantity';
+                input.oninput = calculateTotal;
+                input.onclick = function(event) {
+                    event.stopPropagation();
+                };
+                selectedField.appendChild(input);
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.innerText = 'Remove';
+                removeBtn.onclick = function(event) {
+                    selectedField.parentElement.removeChild(selectedField);
+                    calculateTotal();
+                    event.stopPropagation();
+                };
+                selectedField.appendChild(removeBtn);
+                closePopup();
+
+                if (!isReward && selectedField === fieldsContainer.lastElementChild) {
+                    addField(fieldsContainer);
+                } else if (isReward && selectedField === rewardsContainer.lastElementChild) {
+                    addField(rewardsContainer, true);
+                }
+                calculateTotal();
+            }
         }
 
         function closePopup() {
-            document.getElementById('overlay').style.display = 'none';
             document.getElementById('popup').style.display = 'none';
-        }
-
-        function selectMaterial(material, imgSrc) {
-            selectedField.innerHTML = `<img src="${imgSrc}"><input type="number" min="1" placeholder="Quantity" oninput="calculateTotal()">`;
-            selectedField.dataset.material = material;
-            calculateTotal();
-            closePopup();
-        }
-
-        function selectReward(reward, imgSrc, value) {
-            selectedField.innerHTML = `<img src="${imgSrc}"><input type="number" min="1" placeholder="Quantity" oninput="calculateTotal()">`;
-            selectedField.dataset.reward = reward;
-            selectedField.dataset.value = value;
-            calculateTotal();
-            closePopup();
+            document.getElementById('overlay').style.display = 'none';
         }
 
         function calculateTotal() {
@@ -278,35 +297,40 @@
             let totalGems = 0;
             let totalRewards = 0;
 
-            // Calculate costs for materials
             fieldsContainer.querySelectorAll('.field').forEach(field => {
                 const material = field.dataset.material;
-                if (material) {
-                    const quantity = parseInt(field.querySelector('input').value) || 0;
+                const quantity = field.querySelector('input').value;
+                if (material && quantity) {
                     totalTickets += materialCosts[material] * quantity;
+                    totalGems += materialCosts[material] * quantity;  // Assuming the same cost in gems
                 }
             });
 
-            // Calculate rewards
             rewardsContainer.querySelectorAll('.reward').forEach(reward => {
-                const rewardName = reward.dataset.reward;
-                if (rewardName) {
-                    const quantity = parseInt(reward.querySelector('input').value) || 0;
-                    const value = parseFloat(reward.dataset.value) || 0;
-                    totalRewards += value * quantity;
+                const material = reward.dataset.material;
+                const quantity = reward.querySelector('input').value;
+                if (material && quantity) {
+                    totalRewards += rewardValues[material] * quantity;
                 }
             });
 
-            // Assuming 10 tickets = 1 gem
-            totalGems = totalTickets / 10;
-
-            // Calculate profit
-            const profit = totalRewards - totalGems;
-
-            // Update the summary section
             document.getElementById('total-tickets').textContent = totalTickets;
-            document.getElementById('total-gems').textContent = totalGems.toFixed(2);
-            document.getElementById('total-rewards').textContent = totalRewards.toFixed(2);
-            document.getElementById('profit').textContent = profit.toFixed(2);
+            document.getElementById('total-gems').textContent = totalGems;
+            document.getElementById('total-rewards').textContent = totalRewards;
+            document.getElementById('profit').textContent = totalRewards - totalGems;
         }
+
+        function clearAll() {
+            fieldsContainer.innerHTML = '';
+            rewardsContainer.innerHTML = '';
+            addField(fieldsContainer);
+            addField(rewardsContainer, true); // Start with token.png as the first reward
+            calculateTotal();
+        }
+
+        // Initialize with one field in both containers
+        addField(fieldsContainer);
+        addField(rewardsContainer, true); // Start with token.png as the first reward
     </script>
+</body>
+</html>
