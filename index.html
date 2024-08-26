@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survivor.IO Ace Order Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #fields-container,
+        #rewards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .field,
+        .reward {
+            width: 120px;
+            height: 150px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .field img,
+        .reward img {
+            max-width: 80px;
+            max-height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .field input,
+        .reward input {
+            width: 80px;
+            border: none;
+            border-top: 1px solid #ddd;
+            padding: 5px;
+            text-align: center;
+            outline: none;
+            font-size: 14px;
+            cursor: auto;
+            border-radius: 5px;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .popup img {
+            width: 70px;
+            height: 70px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .popup img:hover {
+            transform: scale(1.1);
+            border-color: #888;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        #summary {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            text-align: left;
+        }
+
+        #summary img {
+            width: 30px;
+            vertical-align: middle;
+        }
+
+        #summary div {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Select Order Materials</h1>
+
+    <div id="fields-container">
+        <!-- Fields will be generated here -->
+    </div>
+
+    <h2>Select Order Rewards</h2>
+    <div id="rewards-container">
+        <!-- Rewards will be generated here -->
+    </div>
+
+    <div id="overlay" onclick="closePopup()"></div>
+
+    <div id="popup" class="popup">
+        <!-- Material selection images -->
+        <div id="material-options">
+            <!-- 11 materials for fields -->
+            <img src="materials/material_1.png" onclick="selectMaterial('material_1', 'materials/material_1.png')">
+            <img src="materials/material_2.png" onclick="selectMaterial('material_2', 'materials/material_2.png')">
+            <img src="materials/material_3.png" onclick="selectMaterial('material_3', 'materials/material_3.png')">
+            <img src="materials/material_4.png" onclick="selectMaterial('material_4', 'materials/material_4.png')">
+            <img src="materials/material_5.png" onclick="selectMaterial('material_5', 'materials/material_5.png')">
+            <img src="materials/material_6.png" onclick="selectMaterial('material_6', 'materials/material_6.png')">
+            <img src="materials/material_7.png" onclick="selectMaterial('material_7', 'materials/material_7.png')">
+            <img src="materials/material_8.png" onclick="selectMaterial('material_8', 'materials/material_8.png')">
+            <img src="materials/material_9.png" onclick="selectMaterial('material_9', 'materials/material_9.png')">
+            <img src="materials/material_10.png" onclick="selectMaterial('material_10', 'materials/material_10.png')">
+            <img src="materials/material_11.png" onclick="selectMaterial('material_11', 'materials/material_11.png')">
+        </div>
+        <!-- Rewards selection images -->
+        <div id="reward-options">
+            <img src="materials/token.png" onclick="selectReward('token', 'materials/token.png', 2.5)">
+            <img src="materials/WakeCore.png" onclick="selectReward('WakeCore', 'materials/WakeCore.png', 6000)">
+            <img src="materials/accessory_choose_def_11.png"
+                onclick="selectReward('accessory_choose_def_11', 'materials/accessory_choose_def_11.png', 15000)">
+            <img src="materials/Currency_Diamond.png"
+                onclick="selectReward('Currency_Diamond', 'materials/Currency_Diamond.png', 1)">
+            <img src="materials/equip_choose_S_4.png"
+                onclick="selectReward('equip_choose_S_4', 'materials/equip_choose_S_4.png', 6000)">
+            <img src="materials/Frag_12.png" onclick="selectReward('Frag_12', 'materials/Frag_12.png', 500)">
+            <img src="materials/RelicCore.png" onclick="selectReward('RelicCore', 'materials/RelicCore.png', 15000)">
+        </div>
+    </div>
+
+    <div id="summary">
+        <div><img src="materials/ticket.png"> Tickets: <span id="total-tickets">0</span></div>
+        <div><img src="materials/Currency_Diamond.png"> Gems: <span id="total-gems">0</span></div>
+        <div>Reward Value: <span id="total-rewards">0</span> Gems</div>
+        <div>Profit: <span id="profit">0</span> Gems</div>
+    </div>
+
+    <script>
+        const fieldsContainer = document.getElementById('fields-container');
+        const rewardsContainer = document.getElementById('rewards-container');
+        const materialCosts = {
+            material_1: 12,
+            material_2: 4,
+            material_3: 12,
+            material_4: 3,
+            material_5: 6,
+            material_6: 12,
+            material_7: 4,
+            material_8: 3,
+            material_9: 6,
+            material_10: 1,
+            material_11: 0.5
+        };
+        let selectedField = null;
+        let isReward = false;
+
+        // Generate 10 fields for materials
+        for (let i = 0; i < 10; i++) {
+            const field = document.createElement('div');
+            field.className = 'field';
+            field.id = `field_${i}`;
+            field.onclick = function (event) {
+                if (event.target.tagName !== 'INPUT') {
+                    openPopup(field, false);
+                }
+            };
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = '1';
+            input.placeholder = 'Quantity';
+            input.oninput = calculateTotal;
+            input.onclick = function (event) {
+                event.stopPropagation();
+            };
+            field.appendChild(input);
+            fieldsContainer.appendChild(field);
+        }
+
+        // Generate 4 fields for rewards
+        for (let i = 0; i < 4; i++) {
+            const reward = document.createElement('div');
+            reward.className = 'reward';
+            reward.id = `reward_${i}`;
+            reward.onclick = function (event) {
+                if (event.target.tagName !== 'INPUT') {
+                    openPopup(reward, true);
+                }
+            };
+            const input = document.createElement('input');
+            input.type = 'number'; input.min = '1'; input.placeholder = 'Quantity'; input.oninput = calculateTotal; input.onclick = function (event) { event.stopPropagation(); }; reward.appendChild(input); rewardsContainer.appendChild(reward);
+        }
+
+        function openPopup(field, reward) {
+            selectedField = field;
+            isReward = reward;
+            const materialOptions = document.getElementById('material-options');
+            const rewardOptions = document.getElementById('reward-options');
+            if (reward) {
+                materialOptions.style.display = 'flex';
+                rewardOptions.style.display = 'flex';
+            } else {
+                materialOptions.style.display = 'flex';
+                rewardOptions.style.display = 'none';
+            }
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        function selectMaterial(material, imgSrc) {
+            selectedField.innerHTML = `<img src="${imgSrc}"><input type="number" min="1" placeholder="Quantity" oninput="calculateTotal()">`;
+            selectedField.dataset.material = material;
+            calculateTotal();
+            closePopup();
+        }
+
+        function selectReward(reward, imgSrc, value) {
+            selectedField.innerHTML = `<img src="${imgSrc}"><input type="number" min="1" placeholder="Quantity" oninput="calculateTotal()">`;
+            selectedField.dataset.reward = reward;
+            selectedField.dataset.value = value;
+            calculateTotal();
+            closePopup();
+        }
+
+        function calculateTotal() {
+            let totalTickets = 0;
+            let totalGems = 0;
+            let totalRewards = 0;
+
+            // Calculate costs for materials
+            fieldsContainer.querySelectorAll('.field').forEach(field => {
+                const material = field.dataset.material;
+                if (material) {
+                    const quantity = parseInt(field.querySelector('input').value) || 0;
+                    totalTickets += materialCosts[material] * quantity;
+                }
+            });
+
+            // Calculate rewards
+            rewardsContainer.querySelectorAll('.reward').forEach(reward => {
+                const rewardName = reward.dataset.reward;
+                if (rewardName) {
+                    const quantity = parseInt(reward.querySelector('input').value) || 0;
+                    const value = parseFloat(reward.dataset.value) || 0;
+                    totalRewards += value * quantity;
+                }
+            });
+
+            // Assuming 10 tickets = 1 gem
+            totalGems = totalTickets / 10;
+
+            // Calculate profit
+            const profit = totalRewards - totalGems;
+
+            // Update the summary section
+            document.getElementById('total-tickets').textContent = totalTickets;
+            document.getElementById('total-gems').textContent = totalGems.toFixed(2);
+            document.getElementById('total-rewards').textContent = totalRewards.toFixed(2);
+            document.getElementById('profit').textContent = profit.toFixed(2);
+        }
+    </script>
