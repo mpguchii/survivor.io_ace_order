@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surivivor.IO Ace Order Calculator</title>
+    <title>Survivor.IO Ace Order Calculator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Surivivor.IO Ace Order Calculator</h1>
-        
         <div class="order-section">
             <h2>Order</h2>
-            <div id="order-container"></div>
-            <button id="add-order">Add Material</button>
+            <div id="order-container" class="items-container"></div>
+            <button id="add-order" style="margin-top: 2em"  class="add-button">Add Material</button>
         </div>
         
         <div class="rewards-section">
             <h2>Rewards</h2>
-            <div id="rewards-container"></div>
-            <button id="add-reward">Add Reward</button>
+            <div id="rewards-container" class="items-container"></div>
+            <button id="add-reward" style="margin-top: 2em" class="add-button">Add Reward</button>
         </div>
         
         <div class="summary-section">
@@ -28,13 +26,37 @@
             <p>Total Reward Value: <span id="reward-total"></span></p>
             <p>Profit: <span id="profit"></span></p>
         </div>
-    </div>
 
+        <div class="summary-section">
+            <div class="footer-content">
+                <div class="footer-text">
+                    <p>made by @mpguchii on discord</p>
+                    <p>Join Survivor.BR</p>
+                    <p>LVL 12 clan</p>
+                    <p>#135 clan in world and rising up</p>
+                    <p>1800+ medals on CE Elite tier</p>
+                </div>
+                <img src="logo.jpeg" alt="Icon" class="footer-large-icon">
+            </div>
+        </div>
+    </div>
+    <!-- <footer>
+        <div class="footer-content">
+            <div class="footer-text">
+                <p>made by @mpguchii on discord</p>
+                <p>Join in Survivor.BR</p>
+                <p>LVL 12 clan</p>
+                <p>#135 clan in world and rising up</p>
+                <p>1800+ medals on CE Elite tier</p>
+            </div>
+            <img src="logo.jpeg" alt="Icon" class="footer-large-icon">
+        </div>
+    </footer> -->
     <div id="popup" class="popup">
         <div class="popup-content">
             <h2>Select Material or Reward</h2>
             <div id="popup-items"></div>
-            <button id="close-popup">Close</button>
+            <button id="close-popup" class="add-button">Close</button>
         </div>
     </div>
 

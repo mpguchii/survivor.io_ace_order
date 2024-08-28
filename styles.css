@@ -19,35 +19,32 @@ body {
     border-radius: 8px;
 }
 
-
-h2 {
+h1, h2 {
+    color: #333;
     margin-top: 0;
 }
 
-h1, h2 {
-    color: #333;
-}
-.order-container, .rewards-container {
+/* Flex container for items */
+.items-container {
     display: flex;
-    flex-wrap: wrap; /* Allows items to wrap into the next line */
-    gap: 10px; /* Space between items */
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .order-item, .reward-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #f9f9f9;
+    box-sizing: border-box;
+    flex: 1 1 calc(33.333% - 20px); /* 3 items per row with space between them */
+    min-width: 150px; /* Ensure a minimum width for smaller screens */
     position: relative;
-    flex-basis: calc(33.33% - 10px); /* Each item takes up roughly a third of the container */
-    box-sizing: border-box; /* Ensures padding and borders are included in width */
-    margin-bottom: 10px;
+    min-height: 60px; /* Ensure consistent height */
 }
 
-/* Adjusting Image Size */
 .order-item img, .reward-item img {
     width: 40px;
     height: 40px;
@@ -56,20 +53,22 @@ h1, h2 {
     border: 1px solid #ccc;
 }
 
-/* Adjusting Span Size */
 .order-item span, .reward-item span {
     flex: 1;
     margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px; /* Ensure the text doesn't push other elements */
 }
 
-/* Adjusting Input Size */
 .order-item input, .reward-item input {
     width: 60px;
-    margin-right: 10px;
     padding: 5px;
     border-radius: 5px;
     border: 1px solid #ccc;
     text-align: center;
+    margin-left: auto; /* Ensure input box aligns to the right */
 }
 
 .remove-item {
@@ -84,9 +83,10 @@ h1, h2 {
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 5px; /* Adjusted position */
-    right: 5px; /* Adjusted position */
+    top: 10px;
+    right: 10px;
 }
+
 .remove-item:hover {
     background-color: #c0392b;
 }
@@ -96,7 +96,7 @@ h1, h2 {
 }
 
 /* Add Item Buttons */
-#add-order, #add-reward {
+.add-button {
     display: block;
     width: 100%;
     padding: 10px;
@@ -109,23 +109,38 @@ h1, h2 {
     margin-bottom: 10px;
 }
 
-#add-order:hover, #add-reward:hover {
+.add-button:hover {
     background-color: #2980b9;
 }
 
-#add-order:focus, #add-reward:focus {
+.add-button:focus {
     outline: none;
 }
-
-/* Totals Section */
-#totals {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+/* Footer Content */
+.footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+/* Footer Text */
+.footer-text {
+    text-align: left;
+    margin-right: 20px; /* Space between text and image */
+}
+
+.footer-text p {
+    margin: 5px 0;
+    font-size: 1.2em; /* Adjust this to change the text size */
+}
+
+/* Footer Icon */
+.footer-large-icon {
+    height: auto;
+    width: auto;
+    max-width: 10em;
+}
+/* Popup Styles */
 .popup {
     display: none;
     position: fixed;
@@ -170,47 +185,12 @@ h1, h2 {
     border-color: #007bff;
 }
 
-.remove-item {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    padding: 5px;
-    font-size: 12px;
-    margin-left: 10px;
+.summary-section {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    text-align: left;
 }
 
-.remove-item:hover {
-    background-color: #c82333;
-}
-@media (max-width: 600px) {
-    .order-item, .reward-item {
-        flex-basis: 100%; /* Full width on mobile */
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .order-item img, .reward-item img {
-        margin-bottom: 5px;
-    }
-
-    .order-item span, .reward-item span, .order-item input, .reward-item input {
-        margin-right: 0;
-        margin-bottom: 5px;
-    }
-
-    .remove-item {
-        top: 5px;
-        right: 5px;
-        padding: 5px;
-    }
-
-    .container {
-        padding: 10px;
-    }
-
-    #popup-content {
-        padding: 15px;
-    }
-}
